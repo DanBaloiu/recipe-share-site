@@ -29,13 +29,20 @@ if (BASE_DIR / "env.py").exists():
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get("DEV") == "1"
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.herokuapp.com']
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    "CSRF_TRUSTED_ORIGINS",
-    "http://localhost"
+
+ALLOWED_HOSTS = os.environ.get(
+    "ALLOWED_HOSTS", "localhost,127.0.0.1"
 ).split(",")
+
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS", "http://localhost"
+).split(",")
+
+# Are we configured to use Cloudinary for media?
+USE_CLOUDINARY = bool(os.environ.get("CLOUDINARY_URL")) and not DEBUG
+
 
 
 # Application definition
@@ -87,9 +94,19 @@ WSGI_APPLICATION = 'recipesite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-iDATABASES = {
-    'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
-}
+if DEBUG:
+    # Local dev (DEV=1 in env.py): SQLite
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
+    # Production (no DEV): use Postgres from DATABASE_URL
+    DATABASES = {
+        "default": dj_database_url.parse(os.environ["DATABASE_URL"], conn_max_age=600)
+    }
 
 
 # Password validation
@@ -138,16 +155,38 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+# ---------- Static ----------
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STORAGES = {
-    "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
-}
+# ---------- Media / Storage backends ----------
+# USE_CLOUDINARY is True only in production when CLOUDINARY_URL is set and DEBUG is False
+if USE_CLOUDINARY:
+    # Production: Cloudinary for media, Whitenoise for static
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        },
+    }
+    MEDIA_URL = "/media/"
+else:
+    # Development: local filesystem for media, Whitenoise for static
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage"
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        },
+    }
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
-MEDIA_URL = "media/"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
