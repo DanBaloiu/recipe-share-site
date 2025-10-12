@@ -34,7 +34,7 @@ class RecipeListView(ListView):
 
 
 def recipe_detail(request, slug):
-    """Detail page; drafts visible only to author or staff."""
+    """Render the detail page for a single recipe with comments and ratings."""
     recipe = get_object_or_404(Recipe, slug=slug)
     if recipe.status != "published" and (
         not request.user.is_staff and recipe.author != request.user
@@ -45,7 +45,15 @@ def recipe_detail(request, slug):
     if request.user.is_authenticated:
         user_rating = Rating.objects.filter(recipe=recipe, user=request.user).first()
 
-    return render(request, "recipes/recipe_detail.html", {
-        "recipe": recipe,
-        "user_rating": user_rating,
-    })
+    comments = recipe.comments.filter(approved=True).order_by("created_at")
+
+    return render(
+        request,
+        "recipes/recipe_detail.html",
+        {
+            "recipe": recipe,
+            "user_rating": user_rating,
+            "comments": comments,
+        },
+    )
+

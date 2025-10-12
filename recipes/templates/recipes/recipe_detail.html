@@ -22,5 +22,20 @@
   </ol>
 
   <p class="mt-3">Average rating: {{ recipe.average_rating }}★</p>
+    <h4 class="mt-4">Comments</h4>
+  {% if comments %}
+    <ul class="list-group mb-4">
+      {% for c in comments %}
+        <li class="list-group-item">
+          <strong>{{ c.user.username }}</strong>
+          <span class="text-muted small"> • {{ c.created_at|date:"M d, Y H:i" }}</span>
+          <p class="mb-1">{{ c.body }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No comments yet.</p>
+  {% endif %}
+
 </article>
 {% endblock %}
