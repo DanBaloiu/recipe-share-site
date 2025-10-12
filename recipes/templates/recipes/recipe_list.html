@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Recipes{% endblock %}
+{% block content %}
+<h1 class="mb-3">Recipes</h1>
+<div class="row g-3">
+  {% for r in recipes %}
+  <div class="col-md-4">
+    <div class="card h-100">
+      {% if r.image %}<img src="{{ r.image.url }}" class="card-img-top" alt="{{ r.title }}">{% endif %}
+      <div class="card-body">
+        <h5 class="card-title"><a href="{% url 'recipe_detail' r.slug %}">{{ r.title }}</a></h5>
+        <p class="text-muted small mb-1">by {{ r.author.username }} • {{ r.created_at|date:"M d, Y" }}</p>
+        {% if r.excerpt %}<p class="card-text">{{ r.excerpt }}</p>{% endif %}
+        {% if r.average_rating %}<div class="small">Avg rating: {{ r.average_rating }}★</div>{% endif %}
+        <div class="mt-2">
+          {% for t in r.tag_list %}
+            <a class="badge bg-light text-dark border" href="?tag={{ t|urlencode }}">{{ t }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p>No recipes yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}
