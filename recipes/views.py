@@ -3,8 +3,10 @@
 from django.http import HttpResponse
 from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.views.generic import ListView
 from .models import Recipe, Rating
+from .forms import CommentForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 
@@ -47,6 +49,26 @@ def recipe_detail(request, slug):
     if request.user.is_authenticated:
         user_rating = Rating.objects.filter(recipe=recipe, user=request.user).first()
 
+    # handle comment submission
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to comment.")
+            return redirect("accounts:login")
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.recipe = recipe
+            comment.user = request.user
+            # keep moderation simple: new comments require approval
+            comment.approved = False
+            comment.save()
+            messages.success(request, "Comment submitted for approval.")
+            return redirect("recipe_detail", slug=recipe.slug)
+        else:
+            messages.error(request, "Please fix the errors and try again.")
+    else:
+        form = CommentForm()
+
     comments = recipe.comments.filter(approved=True).order_by("created_at")
 
     return render(
@@ -56,6 +78,7 @@ def recipe_detail(request, slug):
             "recipe": recipe,
             "user_rating": user_rating,
             "comments": comments,
+            "comment_form": form,
         },
     )
 
