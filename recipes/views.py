@@ -61,7 +61,7 @@ def recipe_detail(request, slug):
         if "rating" in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, "You must be logged in to rate.")
-                return redirect("login")
+                return redirect("accounts:login")
             try:
                 stars = int(request.POST.get("rating", 0))
             except (TypeError, ValueError):
@@ -81,7 +81,7 @@ def recipe_detail(request, slug):
         if "body" in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, "You must be logged in to comment.")
-                return redirect("login")
+                return redirect("accounts:login")
             form = CommentForm(request.POST)
             if form.is_valid():
                 edit_id = request.POST.get("edit_comment_id")

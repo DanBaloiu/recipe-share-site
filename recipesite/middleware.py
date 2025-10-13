@@ -28,3 +28,4 @@ class SecurityHeadersMiddleware:
         response.setdefault("X-XSS-Protection", "1; mode=block")
 
         return response
+        return response
