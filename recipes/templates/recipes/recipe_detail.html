@@ -52,7 +52,7 @@
       {% if user.is_authenticated and user == c.user %}
       <div class="small">
   <a href="?edit={{ c.pk }}#comment-form" class="btn btn-sm btn-outline-secondary edit-comment me-2" data-pk="{{ c.pk }}" onclick="startEdit(this); return false;">Edit</a>
-        <form method="post" action="{% url 'comment_delete' c.pk %}" style="display:inline">{% csrf_token %}
+        <form method="post" action="{% url 'comment_delete' c.pk %}" style="display:inline" class="needs-delete-confirm">{% csrf_token %}
           <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
         </form>
       </div>
