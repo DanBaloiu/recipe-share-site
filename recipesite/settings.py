@@ -43,7 +43,11 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
 ).split(",")
 
 # Are we configured to use Cloudinary for media?
-USE_CLOUDINARY = bool(os.environ.get("CLOUDINARY_URL")) and not DEBUG
+# By default Cloudinary is used only when CLOUDINARY_URL is set and DEBUG is False
+# but we allow forcing Cloudinary in development by setting FORCE_CLOUDINARY=1
+USE_CLOUDINARY = bool(os.environ.get("CLOUDINARY_URL")) and (
+    (not DEBUG) or os.environ.get("FORCE_CLOUDINARY", "").lower() in ("1", "true", "yes")
+)
 
 
 
