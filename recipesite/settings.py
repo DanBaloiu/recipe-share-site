@@ -168,6 +168,8 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+
+
 # ---------- Media / Storage backends ----------
 # USE_CLOUDINARY is True only in production when CLOUDINARY_URL is set and DEBUG is False
 if USE_CLOUDINARY:
@@ -177,7 +179,7 @@ if USE_CLOUDINARY:
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"
+            "BACKEND": "whitenoise.storage.StaticFilesStorage"
         },
     }
     MEDIA_URL = "/media/"
@@ -188,7 +190,7 @@ else:
             "BACKEND": "django.core.files.storage.FileSystemStorage"
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"
+            "BACKEND": "whitenoise.storage.StaticFilesStorage"
         },
     }
     MEDIA_URL = "/media/"
