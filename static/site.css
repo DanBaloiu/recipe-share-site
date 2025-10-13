@@ -53,3 +53,53 @@ img { max-width: 100%; height: auto; }
 .star-label.active {
 	transform: scale(1.05);
 }
+
+/* Accessibility improvements: stronger contrast for outline buttons and navbar */
+.btn-outline-secondary, .btn-outline-success, .btn-outline-primary, .btn-outline-danger {
+	color: #1f2937; /* dark text for better contrast */
+	border-color: #374151; /* slightly darker border */
+}
+.btn-outline-secondary:hover, .btn-outline-success:hover, .btn-outline-primary:hover, .btn-outline-danger:hover {
+	background-color: rgba(243,244,246,0.9); /* light background on hover */
+	color: #000;
+	border-color: #111827; /* stronger border on hover */
+	transform: translateY(-1px);
+}
+
+/* slightly thicker borders and smooth transitions for all buttons */
+.btn, .btn-outline-secondary, .btn-outline-success, .btn-outline-primary, .btn-outline-danger {
+	border-width: 1.5px;
+	transition: background-color 160ms ease, border-color 160ms ease, transform 120ms ease, box-shadow 160ms ease;
+}
+
+/* subtle hover shadow for depth without flashy effect */
+.btn:hover {
+	box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+}
+
+/* Navbar contrast on light background */
+.navbar-light .navbar-brand, .navbar-light .navbar-nav .nav-link {
+	color: #111827; /* darken text */
+}
+
+/* Improved focus ring for accessibility */
+:focus {
+	outline: 3px solid rgba(59,130,246,0.35);
+	outline-offset: 2px;
+}
+
+/* Make navbar links and buttons slightly bolder and larger for better readability */
+.navbar-brand, .navbar-nav .nav-link {
+	font-weight: 600;
+	letter-spacing: 0.2px;
+}
+.navbar .btn {
+	font-weight: 600;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+.btn-sm {
+	padding-top: 4px;
+	padding-bottom: 4px;
+	font-weight: 600;
+}
