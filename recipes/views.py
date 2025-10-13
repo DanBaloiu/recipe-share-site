@@ -214,6 +214,21 @@ def recipe_edit(request, slug):
     return render(request, "recipes/recipe_edit.html", {"form": form, "recipe": recipe})
 
 
+def recipe_delete(request, slug):
+    """Allow the recipe owner or staff to delete a recipe from the front-end."""
+    recipe = get_object_or_404(Recipe, slug=slug)
+    if not (request.user == recipe.author or request.user.is_staff):
+        messages.error(request, "You don't have permission to delete that recipe.")
+        return redirect("recipe_detail", slug=recipe.slug)
+
+    if request.method == "POST":
+        recipe.delete()
+        messages.success(request, "Recipe deleted.")
+        return redirect("recipe_list")
+
+    return render(request, "recipes/recipe_confirm_delete.html", {"recipe": recipe})
+
+
 def comment_edit(request, pk):
     """Allow a user to edit their own comment; edited comments require re-approval."""
     comment = get_object_or_404(Comment, pk=pk)
