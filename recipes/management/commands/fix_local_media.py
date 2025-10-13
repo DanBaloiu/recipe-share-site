@@ -1,3 +1,12 @@
+"""Management command to repair local ImageField paths for development.
+
+This command inspects the ``Recipe.image`` field values and attempts to
+fix common issues seen during development (for example, leading
+"media/" prefixes or incorrect file locations). It can run in
+``--dry-run`` mode to show proposed fixes without making database
+changes.
+"""
+
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from recipes.models import Recipe

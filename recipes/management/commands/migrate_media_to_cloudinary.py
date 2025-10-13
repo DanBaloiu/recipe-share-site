@@ -1,3 +1,12 @@
+"""Management command to migrate Recipe.image fields through the
+configured storage backend.
+
+This module provides a Django management command that iterates recipes
+with ImageField values and re-saves them to trigger the storage backend
+(for example, to upload local files to Cloudinary). It supports
+``--dry-run`` and ``--force`` flags.
+"""
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from recipes.models import Recipe
