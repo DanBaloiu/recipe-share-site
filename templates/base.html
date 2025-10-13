@@ -123,6 +123,43 @@
   })
 </script>
 {% endif %}
+<!-- Rating required modal: shown when user submits rating without selecting a star -->
+<div class="modal fade" id="ratingRequiredModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select a rating</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Please choose a rating between 1 and 5 stars before submitting.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Prevent rating form submit if no star selected and show a helpful modal
+  document.addEventListener('DOMContentLoaded', function(){
+    var ratingForm = document.getElementById('rating-form');
+    if (!ratingForm) return;
+    ratingForm.addEventListener('submit', function(e){
+      var checked = ratingForm.querySelector('input[type="radio"][name="rating"]:checked');
+      if (!checked) {
+        e.preventDefault();
+        var mEl = document.getElementById('ratingRequiredModal');
+        if (mEl) {
+          var modal = new bootstrap.Modal(mEl);
+          modal.show();
+        } else {
+          alert('Please choose a rating between 1 and 5 stars before submitting.');
+        }
+      }
+    });
+  });
+</script>
 <script>
   // Intercept deletes for forms marked with .needs-delete-confirm and show a modal
   document.addEventListener('DOMContentLoaded', function(){
