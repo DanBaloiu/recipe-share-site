@@ -49,23 +49,45 @@ def recipe_detail(request, slug):
     if request.user.is_authenticated:
         user_rating = Rating.objects.filter(recipe=recipe, user=request.user).first()
 
-    # handle comment submission
+    # handle POST actions: rating or comment
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            messages.error(request, "You must be logged in to comment.")
-            return redirect("accounts:login")
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.recipe = recipe
-            comment.user = request.user
-            # keep moderation simple: new comments require approval
-            comment.approved = False
-            comment.save()
-            messages.success(request, "Comment submitted for approval.")
+        # rating submitted
+        if "rating" in request.POST:
+            if not request.user.is_authenticated:
+                messages.error(request, "You must be logged in to rate.")
+                return redirect("accounts:login")
+            try:
+                stars = int(request.POST.get("rating", 0))
+            except (TypeError, ValueError):
+                stars = 0
+            if stars < 1 or stars > 5:
+                messages.error(request, "Invalid rating value.")
+                return redirect("recipe_detail", slug=recipe.slug)
+            # create or update the user's rating for this recipe
+            Rating.objects.update_or_create(
+                recipe=recipe, user=request.user, defaults={"stars": stars}
+            )
+            # use a message tag to indicate this is a rating so the frontend shows a stars modal
+            messages.success(request, str(stars), extra_tags="rating")
             return redirect("recipe_detail", slug=recipe.slug)
-        else:
-            messages.error(request, "Please fix the errors and try again.")
+
+        # handle comment submission
+        if "body" in request.POST:
+            if not request.user.is_authenticated:
+                messages.error(request, "You must be logged in to comment.")
+                return redirect("accounts:login")
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.recipe = recipe
+                comment.user = request.user
+                # keep moderation simple: new comments require approval
+                comment.approved = False
+                comment.save()
+                messages.success(request, "Comment submitted for approval.")
+                return redirect("recipe_detail", slug=recipe.slug)
+            else:
+                messages.error(request, "Please fix the errors and try again.")
     else:
         form = CommentForm()
 

@@ -7,3 +7,24 @@ img { max-width: 100%; height: auto; }
 .auth-page label, .auth-page p, .auth-page .helptext {
 	font-size: 0.95rem;
 }
+
+/* Rating star styles */
+.star-label {
+	font-size: 1.6rem;
+	color: #ddd;
+	cursor: pointer;
+	user-select: none;
+}
+.star-label.selected {
+	color: #ffc107;
+}
+/* larger hit area and smooth transition for stars */
+.star-label {
+	display: inline-block;
+	padding: 0 4px;
+	transition: color 120ms ease-in-out, transform 120ms ease-in-out;
+}
+.star-label:hover,
+.star-label.active {
+	transform: scale(1.05);
+}

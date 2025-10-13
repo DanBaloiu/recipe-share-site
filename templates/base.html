@@ -73,12 +73,33 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% if messages %}
+  {% for message in messages %}
+    {% if 'rating' in message.tags %}
+      <div id="rating-message" data-stars="{{ message|escapejs }}" style="display:none"></div>
+    {% endif %}
+  {% endfor %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('flashMessageModal')
     if (el) {
       var modal = new bootstrap.Modal(el)
       modal.show()
+    }
+    var ratingEl = document.getElementById('rating-message');
+    if (ratingEl) {
+      var stars = ratingEl.getAttribute('data-stars') || '';
+      var html = '<div class="modal fade" id="ratingConfirmModal" tabindex="-1" aria-hidden="true">'
+        +'<div class="modal-dialog modal-sm modal-dialog-centered">'
+        +'<div class="modal-content">'
+        +'<div class="modal-body text-center py-4">'
+        +'<h5 class="mb-2">Thanks!</h5>'
+        +'<p class="mb-0">You rated this recipe <strong>'+stars+'★</strong></p>'
+        +'</div></div></div></div>';
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = html;
+      document.body.appendChild(wrapper.firstChild);
+      var m = new bootstrap.Modal(document.getElementById('ratingConfirmModal'));
+      m.show();
     }
   })
 </script>
