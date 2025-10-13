@@ -29,7 +29,9 @@ if (BASE_DIR / "env.py").exists():
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEV") == "1"
+# Read DEBUG from environment so production (Heroku) can set DEBUG=False
+# Default to True locally for development when no env var is set.
+DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
 
 
 ALLOWED_HOSTS = os.environ.get(
