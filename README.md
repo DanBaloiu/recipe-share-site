@@ -111,7 +111,7 @@ Agile development was used throughout, with incremental commits on GitHub repres
 ### Wireframes & Mockups
 
 ![Desktop Wireframe](staticfiles/images/Wireframe_desktop.png)  
-![Mobile Wireframe](static/images/readme/wireframe-detail.png)
+![Mobile Wireframe](staticfiles/images/Wireframe_mobile.png)
 
 ---
 
@@ -161,9 +161,8 @@ open database link in your email
 
 | Tool | Status | Screenshot |
 |------|---------|-------------|
-| **HTML (W3C Validator)** | ✅ Passed | ![HTML Validator](staticfiles/images/HTML_After.png) |
-| **CSS (W3C Validator)** | ✅ Passed | ![CSS Validator](staticfiles/images/CSS_Validation.png.png) |
-| **Python (PEP8 Linter)** | ✅ Passed | ![PEP8 Validator](static/images/readme/pep8.png) |
+| **HTML (W3C Validator)** | ✅ Passed | ![HTML Validator](staticfiles/images/HTML_After_2.png) |
+| **CSS (W3C Validator)** | ✅ Passed | ![CSS Validator](staticfiles/images/CSS_Validation.png) |
 
 ---
 
@@ -171,12 +170,12 @@ open database link in your email
 
 | Metric | Score |
 |--------|--------|
-| **Performance** | 95 |
-| **Accessibility** | 100 |
-| **Best Practices** | 100 |
-| **SEO** | 100 |
+| **Performance** | 78 |
+| **Accessibility** | 97 |
+| **Best Practices** | 78 |
+| **SEO** | 91 |
 
-![Lighthouse Report](static/images/readme/lighthouse.png)
+![Lighthouse Report](staticfiles/images/Lighthouse_results.png)
 
 ---
 
@@ -210,20 +209,19 @@ open database link in your email
 | **Comments not visible** | Missing model/form context | Fixed logic in views |
 | **Ratings admin-only** | UI integration missing | Added frontend star-rating + average logic |
 
----
-
-## 📈 10. Lighthouse / Validator Results
-
-![Lighthouse Results](static/images/readme/lighthouse.png)  
-![Lighthouse Results after](static/images/readme/html-css-validate.png)
 
 ---
 
 ## 📷 11. Screenshots
 
-![Homepage Screenshot](static/images/readme/homepage.png)  
-![Recipe Detail Screenshot](static/images/readme/detail.png)  
-![Admin Dashboard Screenshot](static/images/readme/admin.png)
+![Homepage Screenshot](staticfiles/images/Desktop_Screen.png)  
+![Recipe Detail Screenshot](staticfiles/images/Screenshot_Detail.png)  
+![Admin Dashboard Screenshot](staticfiles/images/Screenshot_Admin.png)
+
+### Responsiveness 
+![Desktop](staticfiles/images/Desktop_Screen.png)
+![Tablet](staticfiles/images/Tablet_View.png)
+![Mobile](staticfiles/images/Mobile_Screen.png)
 
 ---
 
