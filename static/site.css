@@ -1,1 +1,9 @@
 img { max-width: 100%; height: auto; }
+
+/* Auth pages (login/signup) */
+.auth-page h2 {
+	font-size: 1.75rem;
+}
+.auth-page label, .auth-page p, .auth-page .helptext {
+	font-size: 0.95rem;
+}
