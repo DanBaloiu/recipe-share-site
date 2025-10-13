@@ -5,6 +5,8 @@ from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView
 from .models import Recipe, Rating
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 
 # Create your views here.
 
@@ -56,4 +58,17 @@ def recipe_detail(request, slug):
             "comments": comments,
         },
     )
+
+
+def signup_view(request):
+    """Simple signup view that creates a user and logs them in."""
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("recipe_list")
+    else:
+        form = UserCreationForm()
+    return render(request, "registration/signup.html", {"form": form})
 
