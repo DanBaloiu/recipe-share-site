@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Edit comment{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Edit your comment</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.body }}
+    <div class="mt-2">
+      <button class="btn btn-primary">Save changes</button>
+      <a href="{% url 'recipe_detail' comment.recipe.slug %}" class="btn btn-link">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

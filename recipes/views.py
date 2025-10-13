@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.views.generic import ListView
 from .models import Recipe, Rating
+from .models import Comment
 from .forms import CommentForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -71,25 +72,59 @@ def recipe_detail(request, slug):
             messages.success(request, str(stars), extra_tags="rating")
             return redirect("recipe_detail", slug=recipe.slug)
 
-        # handle comment submission
+        # handle comment submission (new or edit)
         if "body" in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, "You must be logged in to comment.")
                 return redirect("accounts:login")
             form = CommentForm(request.POST)
             if form.is_valid():
-                comment = form.save(commit=False)
-                comment.recipe = recipe
-                comment.user = request.user
-                # keep moderation simple: new comments require approval
-                comment.approved = False
-                comment.save()
-                messages.success(request, "Comment submitted for approval.")
-                return redirect("recipe_detail", slug=recipe.slug)
+                edit_id = request.POST.get("edit_comment_id")
+                if edit_id:
+                    # editing an existing comment — must be owner
+                    try:
+                        existing = Comment.objects.get(pk=int(edit_id), recipe=recipe)
+                    except (Comment.DoesNotExist, ValueError):
+                        messages.error(request, "Comment not found.")
+                        return redirect("recipe_detail", slug=recipe.slug)
+                    if existing.user != request.user:
+                        messages.error(request, "You don't have permission to edit that comment.")
+                        return redirect("recipe_detail", slug=recipe.slug)
+                    existing.body = form.cleaned_data["body"]
+                    existing.approved = False  # require re-approval after edit
+                    existing.save()
+                    messages.success(request, "Comment updated and submitted for re-approval.")
+                    return redirect("recipe_detail", slug=recipe.slug)
+                else:
+                    # create new comment
+                    comment = form.save(commit=False)
+                    comment.recipe = recipe
+                    comment.user = request.user
+                    comment.approved = False
+                    comment.save()
+                    messages.success(request, "Comment submitted for approval.")
+                    return redirect("recipe_detail", slug=recipe.slug)
             else:
                 messages.error(request, "Please fix the errors and try again.")
     else:
-        form = CommentForm()
+        # support server-side prefill when user clicks Edit (GET ?edit=<pk>)
+        edit_id = request.GET.get("edit") if request.method == "GET" else None
+        if edit_id and request.user.is_authenticated:
+            try:
+                existing = Comment.objects.get(pk=int(edit_id), recipe=recipe)
+                if existing.user == request.user:
+                    form = CommentForm(instance=existing)
+                    # pass edit id to template via form.initial is not enough, set variable below
+                    edit_comment_id = str(existing.pk)
+                else:
+                    form = CommentForm()
+                    edit_comment_id = None
+            except (Comment.DoesNotExist, ValueError):
+                form = CommentForm()
+                edit_comment_id = None
+        else:
+            form = CommentForm()
+            edit_comment_id = None
 
     comments = recipe.comments.filter(approved=True).order_by("created_at")
 
@@ -101,6 +136,7 @@ def recipe_detail(request, slug):
             "user_rating": user_rating,
             "comments": comments,
             "comment_form": form,
+            "edit_comment_id": locals().get('edit_comment_id', None),
         },
     )
 
@@ -116,4 +152,43 @@ def signup_view(request):
     else:
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
+
+
+def comment_edit(request, pk):
+    """Allow a user to edit their own comment; edited comments require re-approval."""
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.user != comment.user:
+        messages.error(request, "You don't have permission to edit that comment.")
+        return redirect("recipe_detail", slug=comment.recipe.slug)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.approved = False  # require admin re-approval
+            comment.save()
+            messages.success(request, "Comment updated and submitted for re-approval.")
+            return redirect("recipe_detail", slug=comment.recipe.slug)
+        else:
+            messages.error(request, "Please fix the errors and try again.")
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(request, "recipes/comment_edit.html", {"form": form, "comment": comment})
+
+
+def comment_delete(request, pk):
+    """Allow a user to delete their own comment immediately."""
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.user != comment.user:
+        messages.error(request, "You don't have permission to delete that comment.")
+        return redirect("recipe_detail", slug=comment.recipe.slug)
+
+    if request.method == "POST":
+        recipe_slug = comment.recipe.slug
+        comment.delete()
+        messages.success(request, "Comment deleted.")
+        return redirect("recipe_detail", slug=recipe_slug)
+
+    return render(request, "recipes/comment_confirm_delete.html", {"comment": comment})
 

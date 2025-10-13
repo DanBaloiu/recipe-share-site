@@ -4,8 +4,8 @@
 <article>
   <h1>{{ recipe.title }}</h1>
   <p class="text-muted">by {{ recipe.author.username }} • {{ recipe.created_at|date:"M d, Y" }}</p>
-  {% if r.image %}
-  <img src="{{ r.image.url }}" class="card-img-top" alt="{{ r.title }}">
+  {% if recipe.image %}
+  <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}">
   {% endif %}
 
   <p class="mt-3">{{ recipe.description }}</p>
@@ -13,14 +13,14 @@
   <h4>Ingredients</h4>
   <ul>
     {% for line in recipe.ingredients.splitlines %}
-    {% if line %}<li>{{ line }}</li>{% endif %}
+      {% if line %}<li>{{ line }}</li>{% endif %}
     {% endfor %}
   </ul>
 
   <h4>Steps</h4>
   <ol>
     {% for line in recipe.steps.splitlines %}
-    {% if line %}<li>{{ line }}</li>{% endif %}
+      {% if line %}<li>{{ line }}</li>{% endif %}
     {% endfor %}
   </ol>
 
@@ -31,9 +31,8 @@
     <label class="me-2 mb-0">Your rating:</label>
     <div id="star-input" class="me-2">
       {% for i in "12345" %}
-        {# render radio buttons visually as stars via CSS/JS #}
-  <input type="radio" name="rating" id="star-{{ forloop.counter }}" value="{{ forloop.counter }}" {% if user_rating and user_rating.stars == forloop.counter %}checked{% endif %} style="display:none;">
-  <label for="star-{{ forloop.counter }}" class="star-label" data-value="{{ forloop.counter }}" tabindex="0" role="button" aria-label="Rate {{ forloop.counter }} stars">★</label>
+        <input type="radio" name="rating" id="star-{{ forloop.counter }}" value="{{ forloop.counter }}" {% if user_rating and user_rating.stars == forloop.counter %}checked{% endif %} style="display:none;">
+        <label for="star-{{ forloop.counter }}" class="star-label" data-value="{{ forloop.counter }}" tabindex="0" role="button" aria-label="Rate {{ forloop.counter }} stars">★</label>
       {% endfor %}
     </div>
     <button class="btn btn-sm btn-outline-primary" type="submit">Submit</button>
@@ -41,6 +40,7 @@
   {% else %}
   <p><a href="{% url 'login' %}">Log in</a> to rate this recipe.</p>
   {% endif %}
+
   <h4 class="mt-4">Comments</h4>
   {% if comments %}
   <ul class="list-group mb-4">
@@ -49,6 +49,14 @@
       <strong>{{ c.user.username }}</strong>
       <span class="text-muted small"> • {{ c.created_at|date:"M d, Y H:i" }}</span>
       <p class="mb-1">{{ c.body }}</p>
+      {% if user.is_authenticated and user == c.user %}
+      <div class="small">
+  <a href="?edit={{ c.pk }}#comment-form" class="btn btn-sm btn-outline-secondary edit-comment me-2" data-pk="{{ c.pk }}" onclick="startEdit(this); return false;">Edit</a>
+        <form method="post" action="{% url 'comment_delete' c.pk %}" style="display:inline">{% csrf_token %}
+          <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+        </form>
+      </div>
+      {% endif %}
     </li>
     {% endfor %}
   </ul>
@@ -59,11 +67,13 @@
   {% if user.is_authenticated %}
   <hr class="my-4">
   <h5 class="mb-3">Add a comment</h5>
-  <form method="post" class="mb-5">
+  <form method="post" class="mb-5" id="comment-form">
     {% csrf_token %}
+  <input type="hidden" name="edit_comment_id" id="edit_comment_id" value="{{ edit_comment_id|default:'' }}">
     {{ comment_form.body }}
     <div class="mt-2">
       <button class="btn btn-primary btn-sm">Post comment</button>
+  <button class="btn btn-secondary btn-sm {% if edit_comment_id %}{% else %}d-none{% endif %}" type="button" id="cancel-edit">Cancel</button>
     </div>
   </form>
   {% else %}
@@ -73,102 +83,173 @@
   {% endif %}
 
 </article>
-{% endblock %}
 
-{% if user.is_authenticated %}
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var starInput = document.getElementById('star-input');
-    if (!starInput) return;
-    var labels = starInput.querySelectorAll('.star-label');
-    var radios = starInput.querySelectorAll('input[type="radio"][name="rating"]');
+// Star rating UI handlers
+document.addEventListener('DOMContentLoaded', function () {
+  var starInput = document.getElementById('star-input');
+  if (!starInput) return;
+  var labels = starInput.querySelectorAll('.star-label');
+  var radios = starInput.querySelectorAll('input[type="radio"][name="rating"]');
 
-    var pendingValue = null; // tentative selection while hovering/tapping
+  var pendingValue = null; // tentative selection while hovering/tapping
 
-    function setSelected(value) {
-      labels.forEach(function(lbl){
-        var v = parseInt(lbl.getAttribute('data-value'));
-        if (v <= value) lbl.classList.add('selected'); else lbl.classList.remove('selected');
-      });
-    }
-
+  function setSelected(value) {
     labels.forEach(function(lbl){
-      // click selects and persists selection
-      lbl.addEventListener('click', function(e){
-        var v = parseInt(this.getAttribute('data-value'));
-        var r = document.getElementById('star-' + v);
-        if (r) r.checked = true;
-        pendingValue = v;
-        setSelected(v);
-      });
-
-      // hover (desktop) — set pending selection on mouseenter
-      lbl.addEventListener('mouseenter', function(e){
-        var v = parseInt(this.getAttribute('data-value'));
-        pendingValue = v;
-        setSelected(v);
-      });
-
-      // touch devices — set pending selection on touchstart
-      lbl.addEventListener('touchstart', function(e){
-        var v = parseInt(this.getAttribute('data-value'));
-        pendingValue = v;
-        setSelected(v);
-      }, {passive: true});
-
-      // keyboard accessibility: Enter or Space should toggle and persist
-      lbl.addEventListener('keydown', function(e){
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.click();
-        }
-      });
+      var v = parseInt(lbl.getAttribute('data-value'));
+      if (v <= value) lbl.classList.add('selected'); else lbl.classList.remove('selected');
     });
-    starInput.addEventListener('mouseleave', function(){
-      // keep pendingValue if present; otherwise restore checked state
-      if (pendingValue !== null) {
-        setSelected(pendingValue);
-        return;
+  }
+
+  labels.forEach(function(lbl){
+    lbl.addEventListener('click', function(e){
+      var v = parseInt(this.getAttribute('data-value'));
+      var r = document.getElementById('star-' + v);
+      if (r) r.checked = true;
+      pendingValue = v;
+      setSelected(v);
+    });
+    lbl.addEventListener('mouseenter', function(e){
+      var v = parseInt(this.getAttribute('data-value'));
+      pendingValue = v;
+      setSelected(v);
+    });
+    lbl.addEventListener('touchstart', function(e){
+      var v = parseInt(this.getAttribute('data-value'));
+      pendingValue = v;
+      setSelected(v);
+    }, {passive: true});
+    lbl.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
       }
+    });
+  });
+
+  starInput.addEventListener('mouseleave', function(){
+    if (pendingValue !== null) {
+      setSelected(pendingValue);
+      return;
+    }
+    var checked = Array.from(radios).find(function(r){ return r.checked; });
+    var val = checked ? parseInt(checked.value) : 0;
+    setSelected(val);
+  });
+
+  document.addEventListener('click', function(e){
+    if (!starInput.contains(e.target)) {
+      pendingValue = null;
       var checked = Array.from(radios).find(function(r){ return r.checked; });
       var val = checked ? parseInt(checked.value) : 0;
       setSelected(val);
-    });
-
-    // clicking outside clears pending selection (reverts to checked)
-    document.addEventListener('click', function(e){
-      if (!starInput.contains(e.target)) {
-        pendingValue = null;
-        var checked = Array.from(radios).find(function(r){ return r.checked; });
-        var val = checked ? parseInt(checked.value) : 0;
-        setSelected(val);
-      }
-    });
-
-    // Escape cancels pending selection
-    document.addEventListener('keydown', function(e){
-      if (e.key === 'Escape') {
-        pendingValue = null;
-        var checked = Array.from(radios).find(function(r){ return r.checked; });
-        var val = checked ? parseInt(checked.value) : 0;
-        setSelected(val);
-      }
-    });
-
-    // ensure submit applies pendingValue to the radio before posting
-    var form = document.getElementById('rating-form');
-    if (form) {
-      form.addEventListener('submit', function(e){
-        if (pendingValue !== null) {
-          var r = document.getElementById('star-' + pendingValue);
-          if (r) r.checked = true;
-        }
-        // allow form to submit normally
-      });
     }
-    // initialize from checked
-    var initChecked = Array.from(radios).find(function(r){ return r.checked; });
-    if (initChecked) setSelected(parseInt(initChecked.value));
   });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+      pendingValue = null;
+      var checked = Array.from(radios).find(function(r){ return r.checked; });
+      var val = checked ? parseInt(checked.value) : 0;
+      setSelected(val);
+    }
+  });
+
+  var form = document.getElementById('rating-form');
+  if (form) {
+    form.addEventListener('submit', function(e){
+      if (pendingValue !== null) {
+        var r = document.getElementById('star-' + pendingValue);
+        if (r) r.checked = true;
+      }
+    });
+  }
+  var initChecked = Array.from(radios).find(function(r){ return r.checked; });
+  if (initChecked) setSelected(parseInt(initChecked.value));
+});
 </script>
-{% endif %}
+
+<script>
+// Inline comment edit: populate the comment form with the selected comment and show a cancel button
+window.startEdit = function(target) {
+  try {
+    var form = document.getElementById('comment-form');
+    if (!form) return;
+    var textarea = form.querySelector('textarea[name="body"]') || document.getElementById('id_body') || form.querySelector('textarea');
+    var editIdInput = document.getElementById('edit_comment_id');
+    var cancelBtn = document.getElementById('cancel-edit');
+    if (!target) return;
+    var pk = target.getAttribute('data-pk');
+    var li = target.closest('li');
+    var bodyText = '';
+    if (li) {
+      var p = li.querySelector('p.mb-1');
+      if (p) bodyText = p.innerText.trim();
+    }
+    if (textarea) textarea.value = bodyText;
+    if (editIdInput) editIdInput.value = pk;
+    if (cancelBtn) cancelBtn.classList.remove('d-none');
+    if (textarea) {
+      textarea.focus();
+      // visually highlight the field so user notices edit mode
+      textarea.style.boxShadow = '0 0 0 3px rgba(0,123,255,0.15)';
+      textarea.scrollIntoView({behavior: 'smooth', block: 'center'});
+      console.log('startEdit: populated form for comment', pk);
+    } else {
+      console.log('startEdit: textarea not found for comment', pk);
+    }
+  } catch (err) {
+    console.error('startEdit error', err);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+  var form = document.getElementById('comment-form');
+  if (!form) return;
+  var textarea = form.querySelector('textarea');
+  var editIdInput = document.getElementById('edit_comment_id');
+  var cancelBtn = document.getElementById('cancel-edit');
+
+  document.addEventListener('click', function(e){
+    var target = e.target;
+    if (target && target.classList && target.classList.contains('edit-comment')) {
+      startEdit(target);
+    }
+  });
+
+  try {
+    var directButtons = document.querySelectorAll('.edit-comment');
+    directButtons.forEach(function(btn){
+      btn.removeEventListener('click', btn._editHandler);
+      btn._editHandler = function(e){ e.preventDefault(); startEdit(btn); };
+      btn.addEventListener('click', btn._editHandler);
+    });
+  } catch (err) {
+    console.log('error attaching direct edit handlers', err);
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function(){
+      if (textarea) textarea.value = '';
+      if (editIdInput) editIdInput.value = '';
+      cancelBtn.classList.add('d-none');
+    });
+  }
+
+  function handleHash() {
+    var h = location.hash || '';
+    if (h.indexOf('#edit-') === 0) {
+      var pk = h.replace('#edit-','');
+      var btn = document.querySelector('.edit-comment[data-pk="' + pk + '"]');
+      if (!btn) btn = document.querySelector('.edit-comment[data-pk="' + pk + '"]');
+      if (!btn) btn = document.querySelector('[data-pk="' + pk + '"]');
+      if (!btn) btn = document.querySelector('.edit-comment[data-pk="' + pk + '"]');
+      if (btn) startEdit(btn);
+    }
+  }
+  window.addEventListener('hashchange', handleHash);
+  handleHash();
+});
+</script>
+
+{% endblock %}
