@@ -1,2 +1,5 @@
 .venv
 env.py
+
+# Ignore user-uploaded media files
+media/
