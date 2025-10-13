@@ -1,5 +1,30 @@
 img { max-width: 100%; height: auto; }
 
+/* Recipe list thumbnails: constrain height and crop with object-fit for consistent cards */
+.recipe-card img, .card img, .recipe-thumb {
+	width: 100%;
+	max-height: 220px; /* slightly smaller thumbnails for homepage */
+	object-fit: cover; /* crop to fill the area */
+	display: block;
+	border-radius: 6px;
+}
+
+/* Recipe detail large image: limit width and height so it doesn't dominate the page */
+.recipe-detail-image, .recipe-detail img {
+	width: 100%;
+	max-width: 760px; /* reduce detail image width so it doesn't dominate */
+	max-height: 520px; /* cap vertical size */
+	object-fit: cover;
+	margin: 0 auto 1.25rem;
+	display: block;
+}
+
+/* Smaller screens: reduce thumbnail and detail image sizes */
+@media (max-width: 768px) {
+	.recipe-card img, .card img, .recipe-thumb { max-height: 160px; }
+	.recipe-detail-image, .recipe-detail img { max-width: 100%; max-height: 320px; }
+}
+
 /* Auth pages (login/signup) */
 .auth-page h2 {
 	font-size: 1.75rem;
