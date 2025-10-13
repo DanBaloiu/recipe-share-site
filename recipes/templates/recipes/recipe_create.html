@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Submit a recipe{% endblock %}
+{% block content %}
+<div class="col-md-8 mx-auto">
+  <h1>Submit a recipe</h1>
+  <p class="text-muted">Fill out the form below to submit your recipe for approval.</p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      {{ form.title.label_tag }}
+      {{ form.title }}
+    </div>
+    <div class="mb-3">
+      {{ form.image.label_tag }}
+      {{ form.image }}
+    </div>
+    <div class="mb-3">
+      {{ form.excerpt.label_tag }}
+      {{ form.excerpt }}
+    </div>
+    <div class="mb-3">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+    </div>
+    <div class="mb-3">
+      {{ form.ingredients.label_tag }}
+      {{ form.ingredients }}
+    </div>
+    <div class="mb-3">
+      {{ form.steps.label_tag }}
+      {{ form.steps }}
+    </div>
+    <div class="mb-3">
+      {{ form.tags.label_tag }}
+      {{ form.tags }}
+    </div>
+    <div class="row">
+      <div class="col">
+        {{ form.prep_minutes.label_tag }}
+        {{ form.prep_minutes }}
+      </div>
+      <div class="col">
+        {{ form.cook_minutes.label_tag }}
+        {{ form.cook_minutes }}
+      </div>
+      <div class="col">
+        {{ form.servings.label_tag }}
+        {{ form.servings }}
+      </div>
+    </div>
+    {# status is set server-side and not exposed to front-end users #}
+    <button class="btn btn-primary">Submit recipe</button>
+  </form>
+</div>
+{% endblock %}

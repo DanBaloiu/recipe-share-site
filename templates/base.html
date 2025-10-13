@@ -18,6 +18,7 @@
     <div class="ms-auto">
       {% if user.is_authenticated %}
         <span class="me-2">Hello, {{ user.get_username }}</span>
+        <a href="{% url 'recipe_create' %}" class="btn btn-outline-success btn-sm me-2">Submit recipe</a>
         <!-- Trigger logout confirmation modal -->
         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">Logout</button>
       {% else %}

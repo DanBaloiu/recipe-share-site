@@ -10,6 +10,11 @@ from .models import Comment
 from .forms import CommentForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.utils.text import slugify
+from django.urls import reverse
+from django.views.generic.edit import CreateView
+from .forms import RecipeForm
 
 # Create your views here.
 
@@ -152,6 +157,35 @@ def signup_view(request):
     else:
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
+
+
+@login_required
+def recipe_create(request):
+    """Allow logged-in users to submit a recipe for admin approval."""
+    if request.method == "POST":
+        form = RecipeForm(request.POST, request.FILES)
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            # ensure author
+            recipe.author = request.user
+            # auto-generate a unique slug if not provided
+            base = slugify(recipe.title)[:200]
+            slug = base
+            i = 1
+            while Recipe.objects.filter(slug=slug).exists():
+                slug = f"{base}-{i}"
+                i += 1
+            recipe.slug = slug
+            # always save user submissions as draft for admin approval
+            recipe.status = "draft"
+            recipe.save()
+            messages.success(request, "Recipe submitted — pending admin approval.")
+            return redirect("recipe_detail", slug=recipe.slug)
+        else:
+            messages.error(request, "Please fix the errors and try again.")
+    else:
+        form = RecipeForm()
+    return render(request, "recipes/recipe_create.html", {"form": form})
 
 
 def comment_edit(request, pk):
