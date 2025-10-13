@@ -3,3 +3,5 @@ env.py
 
 # Ignore user-uploaded media files
 media/
+__pycache__/
+*.pyc
