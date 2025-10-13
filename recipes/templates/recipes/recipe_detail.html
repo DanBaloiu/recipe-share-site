@@ -39,8 +39,10 @@
     <label class="me-2 mb-0">Your rating:</label>
     <div id="star-input" class="me-2">
       {% for i in "12345" %}
-        <input type="radio" name="rating" id="star-{{ forloop.counter }}" value="{{ forloop.counter }}" {% if user_rating and user_rating.stars == forloop.counter %}checked{% endif %} style="display:none;">
-        <label for="star-{{ forloop.counter }}" class="star-label" data-value="{{ forloop.counter }}" tabindex="0" role="button" aria-label="Rate {{ forloop.counter }} stars">★</label>
+     <input type="radio" name="rating" id="star-{{ forloop.counter }}" value="{{ forloop.counter }}" {% if user_rating and user_rating.stars == forloop.counter %}checked{% endif %} style="display:none;">
+     <!-- Labels are already associated with the inputs via 'for'; role="button" is invalid on label elements
+       and causes validation errors. Keep tabindex for keyboard focus and use a clearer aria-label. -->
+     <label for="star-{{ forloop.counter }}" class="star-label" data-value="{{ forloop.counter }}" tabindex="0" aria-label="Rate {{ forloop.counter }} star{{ forloop.counter|pluralize }}">★</label>
       {% endfor %}
     </div>
     <button class="btn btn-sm btn-outline-primary" type="submit">Submit</button>
