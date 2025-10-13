@@ -188,6 +188,32 @@ def recipe_create(request):
     return render(request, "recipes/recipe_create.html", {"form": form})
 
 
+@login_required
+def recipe_edit(request, slug):
+    """Allow the recipe owner or staff to edit a recipe. Edits require re-approval."""
+    recipe = get_object_or_404(Recipe, slug=slug)
+    if not (request.user == recipe.author or request.user.is_staff):
+        messages.error(request, "You don't have permission to edit that recipe.")
+        return redirect("recipe_detail", slug=recipe.slug)
+
+    if request.method == "POST":
+        form = RecipeForm(request.POST, request.FILES, instance=recipe)
+        if form.is_valid():
+            updated = form.save(commit=False)
+            # ensure slug remains the same (do not overwrite)
+            updated.slug = recipe.slug
+            # edits by non-staff require admin approval
+            updated.status = "draft"
+            updated.save()
+            messages.success(request, "Recipe updated — submitted for re-approval.")
+            return redirect("recipe_detail", slug=updated.slug)
+        else:
+            messages.error(request, "Please fix the errors and try again.")
+    else:
+        form = RecipeForm(instance=recipe)
+    return render(request, "recipes/recipe_edit.html", {"form": form, "recipe": recipe})
+
+
 def comment_edit(request, pk):
     """Allow a user to edit their own comment; edited comments require re-approval."""
     comment = get_object_or_404(Comment, pk=pk)
