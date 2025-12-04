@@ -20,6 +20,10 @@
       {% if user.is_authenticated %}
         <span class="me-2">Hello, {{ user.get_username }}</span>
         <a href="{% url 'recipe_create' %}" class="btn btn-outline-success btn-sm me-2">Submit recipe</a>
+        {% if user.is_staff %}
+          <a href="{% url 'pending_recipes' %}" class="btn btn-outline-warning btn-sm me-2">Pending recipes</a>
+          <a href="{% url 'pending_comments' %}" class="btn btn-outline-warning btn-sm me-2">Pending comments</a>
+        {% endif %}
         <!-- Trigger logout confirmation modal -->
         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">Logout</button>
       {% else %}

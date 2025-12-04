@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Confirm action{% endblock %}
+{% block content %}
+<div class="col-md-8 mx-auto">
+  <h1>Confirm {{ action|title }} {{ type|title }}</h1>
+  {% if type == 'recipe' %}
+    <p>Are you sure you want to {{ action }} the recipe "{{ object.title }}"?</p>
+  {% else %}
+    <p>Are you sure you want to {{ action }} this comment?</p>
+    <blockquote class="blockquote">{{ object.body }}</blockquote>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-{{ 'success' if action == 'approve' else 'danger' }}">Yes, {{ action }}</button>
+    <a href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

@@ -267,3 +267,81 @@ def comment_delete(request, pk):
 
     return render(request, "recipes/comment_confirm_delete.html", {"comment": comment})
 
+
+@login_required
+def pending_recipes(request):
+    """Staff view: list recipes awaiting approval (status='draft')."""
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to view that page.")
+        return redirect("recipe_list")
+    recipes = Recipe.objects.filter(status="draft").order_by("-created_at")
+    return render(request, "recipes/pending_recipes.html", {"recipes": recipes})
+
+
+@login_required
+def pending_comments(request):
+    """Staff view: list comments awaiting approval (approved=False)."""
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to view that page.")
+        return redirect("recipe_list")
+    comments = Comment.objects.filter(approved=False).order_by("-created_at")
+    return render(request, "recipes/pending_comments.html", {"comments": comments})
+
+
+@login_required
+def approve_recipe(request, slug):
+    """Approve a draft recipe (POST only)."""
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to perform that action.")
+        return redirect("recipe_list")
+    recipe = get_object_or_404(Recipe, slug=slug)
+    if request.method == "POST":
+        recipe.status = "published"
+        recipe.save()
+        messages.success(request, f"Recipe '{recipe.title}' approved and published.")
+        return redirect("pending_recipes")
+    return render(request, "recipes/pending_action_confirm.html", {"object": recipe, "type": "recipe", "action": "approve"})
+
+
+@login_required
+def reject_recipe(request, slug):
+    """Reject (delete) a draft recipe. POST only."""
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to perform that action.")
+        return redirect("recipe_list")
+    recipe = get_object_or_404(Recipe, slug=slug)
+    if request.method == "POST":
+        recipe.delete()
+        messages.success(request, f"Recipe '{recipe.title}' rejected and removed.")
+        return redirect("pending_recipes")
+    return render(request, "recipes/pending_action_confirm.html", {"object": recipe, "type": "recipe", "action": "reject"})
+
+
+@login_required
+def approve_comment(request, pk):
+    """Approve a pending comment."""
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to perform that action.")
+        return redirect("recipe_list")
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.method == "POST":
+        comment.approved = True
+        comment.save()
+        messages.success(request, "Comment approved.")
+        return redirect("pending_comments")
+    return render(request, "recipes/pending_action_confirm.html", {"object": comment, "type": "comment", "action": "approve"})
+
+
+@login_required
+def reject_comment(request, pk):
+    """Reject (delete) a pending comment."""
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to perform that action.")
+        return redirect("recipe_list")
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.method == "POST":
+        comment.delete()
+        messages.success(request, "Comment rejected and removed.")
+        return redirect("pending_comments")
+    return render(request, "recipes/pending_action_confirm.html", {"object": comment, "type": "comment", "action": "reject"})
+

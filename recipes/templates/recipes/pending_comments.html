@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Pending comments{% endblock %}
+{% block content %}
+<div class="col-md-10 mx-auto">
+  <h1>Pending Comments</h1>
+  <p class="text-muted">User comments awaiting moderation.</p>
+  {% if comments %}
+    <ul class="list-group">
+      {% for c in comments %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <p class="mb-1">{{ c.body|truncatechars:200 }}</p>
+            <small class="text-muted">On <a href="{% url 'recipe_detail' c.recipe.slug %}">{{ c.recipe.title }}</a> — by {{ c.user.get_username }} at {{ c.created_at|date:'Y-m-d H:i' }}</small>
+          </div>
+          <div class="btn-group-vertical">
+            <form method="post" action="{% url 'approve_comment' c.pk %}">{% csrf_token %}
+              <button class="btn btn-success btn-sm mb-1">Approve</button>
+            </form>
+            <form method="post" action="{% url 'reject_comment' c.pk %}">{% csrf_token %}
+              <button class="btn btn-danger btn-sm">Reject</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No pending comments at the moment.</p>
+  {% endif %}
+</div>
+{% endblock %}
