@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-# REMOVED: pre-commit hook was added by assistant and must not be committed to remote.
-# This file is intentionally left minimal to avoid accidental execution.
-exit 0
