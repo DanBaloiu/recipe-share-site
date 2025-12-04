@@ -184,13 +184,20 @@ open database link in your email
 | Action | Expected Result | Outcome |
 |--------|-----------------|----------|
 | Load homepage | Recipes displayed, responsive layout | ✅ |
+| Login Confirmation | Hello, Username displayed on the navbar | ✅ |
 | View recipe detail | Ingredients, steps, and comments visible | ✅ |
-| Post a comment | Comment appears under recipe | ✅ |
+| Post a comment | Comment appears under recipe and awaiting admin aproval | ✅ |
 | Rate recipe | Rating saved and average updates | ✅ |
 | Update rating | Updates the rating and shows confirmation | ✅ |
 | Log out | Redirects to homepage | ✅ |
-| Update a comment | Asks for confirmation and send to admin panel for validation | ✅ |
+| Update a comment | Asks for confirmation and send to admin for validation | ✅ |
 | Delete a comment | Asks for confirmation and deletes from database | ✅ |
+| Staff: Pending recipes | Shows draft recipes with Approve / Reject buttons | ✅ |
+| Staff: Approve recipe | Recipe published and removed from pending list | ✅ |
+| Staff: Reject recipe | Recipe removed from pending list (not public) | (record) |
+| Staff: Pending comments | Shows unapproved comments with Approve / Reject buttons | (record) |
+| Staff: Approve comment | Comment appears under the recipe | (record) |
+| Non-staff access to staff pages | Redirected or blocked (no access) | (record) |
 
 ---
 
@@ -207,6 +214,7 @@ open database link in your email
 | **Collectstatic errors** | Missing CSS references | Corrected file paths |
 | **Images missing on Heroku** | Ephemeral filesystem | Configured Cloudinary storage |
 | **Comments not visible** | Missing model/form context | Fixed logic in views |
+| **Rating submission (no star)** | Submitting the rating form without selecting a star caused an HTTP 500 server error (UnboundLocalError / unexpected POST handling). | Added a client-side guard + modal to prevent empty submissions and updated server-side view logic to handle unexpected POSTs gracefully. |
 | **Ratings admin-only** | UI integration missing | Added frontend star-rating + average logic |
 
 
@@ -234,6 +242,54 @@ open database link in your email
 - Keep commits small and descriptive.
 
 ---
+
+## 🤖 14. AI Usage (Reflection)
+
+This project made strategic use of AI-assisted developer tools during implementation, debugging, and design. The purpose of this section is to document where AI was used, what outcomes it produced, and how those contributions were validated.
+
+Summary of AI tools used:
+- **ChatGPT (OpenAI)** — used for higher-level design suggestions, refactoring guidance, and to draft small code changes and documentation snippets.
+- **GitHub Copilot** — used while coding to suggest function and test scaffolding, form/widget attributes, and small template snippets.
+
+Key outcomes (mapped to LO8 assessment criteria):
+
+- **8.1 — AI-assisted code creation**: AI was used to help generate and refine code for several front-end and back-end improvements, including:
+	- Adding Bootstrap-compatible widgets and classes to `recipes/forms.py` so forms render with consistent styling.
+	- Implementing staff approval views and templates (`recipes/views.py`, `recipes/urls.py`, `recipes/templates/recipes/pending_*.html`).
+	- Creating a small context processor (`recipes/context_processors.py`) to provide pending counts to templates.
+	These changes were reviewed and adjusted manually to ensure they fit the project's architecture and coding style.
+
+- **8.2 — AI-assisted debugging**: AI helped diagnose and fix a Django template error caused by attempting to pass keyword args into `label_tag` from templates (Django templates do not support that syntax). The solution was to render labels manually using `{{ form.field.id_for_label }}` and explicit `<label>` elements. The fix was validated by reloading the pages and confirming the error no longer occurred.
+
+		Additional debugging example (rating submission):
+
+		- Problem found during early testing: it was possible to submit the rating form without selecting any stars. This caused a server-side crash (HTTP 500 Internal Server Error) when the missing value was treated as a numeric rating. The issue was reproduced by a tester and confirmed locally.
+		- AI-assisted fix: an AI-assisted suggestion implemented a small client-side guard that prevents submission when no star is selected and displays a modal prompting the user to choose a rating. This prevented the 500 error and improved UX.
+		- Evidence and screenshots: to document the fix for resubmission, add two screenshots to `staticfiles/images`:
+			- `rating_before.png` — the HTTP 500 error screen (before the client-side guard).
+			- `rating_after.png` — the modal shown when attempting to submit without selecting a star (after the client-side guard).
+			Insert them here once you have them:
+
+			![Rating bug — before](staticfiles/images/rating_before.png)
+
+			![Rating bug — after](staticfiles/images/rating_after.png)
+
+- **8.3 — AI-assisted performance & UX improvements**: AI suggested pragmatic UX improvements that were implemented, such as:
+	- Adding Bootstrap layout and spacing to auth and form pages for consistent, mobile-friendly UX.
+	- Introducing admin-facing pending-count badges and a lightweight moderation interface to improve content moderation workflow (fewer backend-only admin steps).
+	These suggestions were implemented conservatively and manually verified in the browser.
+
+- **8.4 — AI-assisted test generation**: GitHub Copilot has been used to help draft unit test scaffolding and example test cases (for model helpers, view permissions, and form validation). Test code is being reviewed and adjusted to align with the project's logic; a focused test suite will be added to `recipes/tests.py` and documented in `TESTING.md` (see planned tasks).
+
+How AI was used responsibly
+- All AI-generated code and suggestions were reviewed by the developer. Where generated code did not exactly match project conventions or requirements, it was edited and tested manually.
+- No sensitive information, credentials, or private prompts were stored in the repository. All environment-specific secrets remain in environment variables or `env.py` (not checked into source control).
+
+Suggested evidence to include with resubmission
+- A short log of representative prompts and outputs (optional) — kept separate from source control if present.
+- A short test report showing passing unit tests once added (this will be included in `TESTING.md`).
+
+I can also proceed to add the unit tests that were drafted with Copilot and finalize the testing documentation.
 
 ## 🙌 13. Credits & Acknowledgements
 

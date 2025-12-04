@@ -55,6 +55,11 @@ def recipe_detail(request, slug):
     if request.user.is_authenticated:
         user_rating = Rating.objects.filter(recipe=recipe, user=request.user).first()
 
+    # Ensure a comment form is always available for rendering and avoid
+    # UnboundLocalError when an unexpected POST is received (e.g. empty
+    # rating submission). It will be replaced when handling edits below.
+    form = CommentForm()
+
     # handle POST actions: rating or comment
     if request.method == "POST":
         # rating submitted
@@ -111,6 +116,12 @@ def recipe_detail(request, slug):
                     return redirect("recipe_detail", slug=recipe.slug)
             else:
                 messages.error(request, "Please fix the errors and try again.")
+        else:
+            # Received a POST that wasn't a rating or a comment (e.g. empty
+            # submission). Handle gracefully to avoid server errors and give
+            # the user feedback.
+            messages.error(request, "No valid action submitted. Please select a rating or write a comment.")
+            return redirect("recipe_detail", slug=recipe.slug)
     else:
         # support server-side prefill when user clicks Edit (GET ?edit=<pk>)
         edit_id = request.GET.get("edit") if request.method == "GET" else None

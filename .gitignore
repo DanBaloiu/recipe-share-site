@@ -1,7 +1,8 @@
 .venv
 env.py
 
-# Ignore user-uploaded media files
+
+AI_USAGE*.md
 media/
 __pycache__/
 *.pyc

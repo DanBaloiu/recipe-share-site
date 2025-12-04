@@ -114,19 +114,20 @@
   {% endfor %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var el = document.getElementById('flashMessageModal')
-    if (el) {
-      var modal = new bootstrap.Modal(el)
-      modal.show()
-    }
     var ratingEl = document.getElementById('rating-message');
+    var el = document.getElementById('flashMessageModal');
+    // If there's a rating message, show the rating modal only and skip the generic flash modal
     if (ratingEl) {
       var stars = ratingEl.getAttribute('data-stars') || '';
+      // include a header with a close button for consistent UX
       var html = '<div class="modal fade" id="ratingConfirmModal" tabindex="-1" aria-hidden="true">'
         +'<div class="modal-dialog modal-sm modal-dialog-centered">'
         +'<div class="modal-content">'
-        +'<div class="modal-body text-center py-4">'
-        +'<h5 class="mb-2">Thanks!</h5>'
+        +'<div class="modal-header">'
+        +'<h5 class="modal-title">Thanks!</h5>'
+        +'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>'
+        +'</div>'
+        +'<div class="modal-body text-center py-3">'
         +'<p class="mb-0">You rated this recipe <strong>'+stars+'★</strong></p>'
         +'</div></div></div></div>';
       var wrapper = document.createElement('div');
@@ -134,6 +135,9 @@
       document.body.appendChild(wrapper.firstChild);
       var m = new bootstrap.Modal(document.getElementById('ratingConfirmModal'));
       m.show();
+    } else if (el) {
+      var modal = new bootstrap.Modal(el)
+      modal.show()
     }
   })
 </script>
@@ -156,7 +160,6 @@
   </div>
 </div>
 <script>
-  // Prevent rating form submit if no star selected and show a helpful modal
   document.addEventListener('DOMContentLoaded', function(){
     var ratingForm = document.getElementById('rating-form');
     if (!ratingForm) return;
