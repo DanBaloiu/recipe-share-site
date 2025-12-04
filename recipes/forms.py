@@ -21,7 +21,13 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ["body"]
         widgets = {
-            "body": forms.Textarea(attrs={"rows": 3, "placeholder": "Write a helpful comment…"})
+            "body": forms.Textarea(
+                attrs={
+                    "rows": 3,
+                    "placeholder": "Write a helpful comment…",
+                    "class": "form-control",
+                }
+            )
         }
         labels = {"body": ""}
 
@@ -51,8 +57,18 @@ class RecipeForm(forms.ModelForm):
             "servings",
         ]
         widgets = {
-            "excerpt": forms.Textarea(attrs={"rows": 2}),
-            "description": forms.Textarea(attrs={"rows": 4}),
-            "ingredients": forms.Textarea(attrs={"rows": 6, "placeholder": "One ingredient per line"}),
-            "steps": forms.Textarea(attrs={"rows": 8, "placeholder": "One step per line"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "image": forms.ClearableFileInput(attrs={"class": "form-control-file"}),
+            "excerpt": forms.Textarea(attrs={"rows": 2, "class": "form-control"}),
+            "description": forms.Textarea(attrs={"rows": 4, "class": "form-control"}),
+            "ingredients": forms.Textarea(
+                attrs={"rows": 6, "placeholder": "One ingredient per line", "class": "form-control"}
+            ),
+            "steps": forms.Textarea(
+                attrs={"rows": 8, "placeholder": "One step per line", "class": "form-control"}
+            ),
+            "tags": forms.TextInput(attrs={"class": "form-control"}),
+            "prep_minutes": forms.NumberInput(attrs={"class": "form-control"}),
+            "cook_minutes": forms.NumberInput(attrs={"class": "form-control"}),
+            "servings": forms.NumberInput(attrs={"class": "form-control"}),
         }

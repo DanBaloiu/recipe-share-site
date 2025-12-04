@@ -5,7 +5,11 @@
   <h3>Edit your comment</h3>
   <form method="post">
     {% csrf_token %}
-    {{ form.body }}
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      <label for="{{ form.body.id_for_label }}" class="form-label visually-hidden">{{ form.body.label }}</label>
+      {{ form.body }}
+    </div>
     <div class="mt-2">
       <button class="btn btn-primary">Save changes</button>
       <a href="{% url 'recipe_detail' comment.recipe.slug %}" class="btn btn-link">Cancel</a>

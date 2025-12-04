@@ -8,31 +8,31 @@
     {% csrf_token %}
     {{ form.non_field_errors }}
     <div class="mb-3">
-      {{ form.title.label_tag }}
+      <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
       {{ form.title }}
     </div>
     <div class="mb-3">
-      {{ form.image.label_tag }}
+      <label for="{{ form.image.id_for_label }}" class="form-label">{{ form.image.label }}</label>
       {{ form.image }}
     </div>
     <div class="mb-3">
-      {{ form.excerpt.label_tag }}
+      <label for="{{ form.excerpt.id_for_label }}" class="form-label">{{ form.excerpt.label }}</label>
       {{ form.excerpt }}
     </div>
     <div class="mb-3">
-      {{ form.description.label_tag }}
+      <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
       {{ form.description }}
     </div>
     <div class="mb-3">
-      {{ form.ingredients.label_tag }}
+      <label for="{{ form.ingredients.id_for_label }}" class="form-label">{{ form.ingredients.label }}</label>
       {{ form.ingredients }}
     </div>
     <div class="mb-3">
-      {{ form.steps.label_tag }}
+      <label for="{{ form.steps.id_for_label }}" class="form-label">{{ form.steps.label }}</label>
       {{ form.steps }}
     </div>
     <div class="mb-3">
-      {{ form.tags.label_tag }}
+      <label for="{{ form.tags.id_for_label }}" class="form-label">{{ form.tags.label }}</label>
       {{ form.tags }}
     </div>
     <div class="row">
