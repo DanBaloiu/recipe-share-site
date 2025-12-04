@@ -156,6 +156,17 @@ def signup_view(request):
             return redirect("recipe_list")
     else:
         form = UserCreationForm()
+    # ensure form widgets have Bootstrap classes for consistent styling
+    try:
+        for name in form.fields:
+            widget = form.fields[name].widget
+            # don't override existing classes, just append
+            existing = widget.attrs.get("class", "")
+            classes = (existing + " form-control").strip()
+            widget.attrs["class"] = classes
+    except Exception:
+        # defensive: if form has unexpected structure, skip styling
+        pass
     return render(request, "registration/signup.html", {"form": form})
 
 
