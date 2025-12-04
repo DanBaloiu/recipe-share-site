@@ -2,6 +2,7 @@
 env.py
 
 
+# AI usage files should be kept out of repo; do not add this unless instructed
 AI_USAGE*.md
 media/
 __pycache__/
