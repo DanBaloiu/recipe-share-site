@@ -179,6 +179,25 @@ open database link in your email
 
 ---
 
+---
+
+### ▶ Running tests locally
+
+Follow these steps to run the Django unit tests locally and capture evidence for submission. The project keeps all testing documentation inside this single `README.md` per project requirements.
+
+```
+# create and activate a virtual environment (example for Windows Git Bash)
+python -m venv .venv
+source .venv/Scripts/activate
+pip install -r requirements.txt
+# run the test suite
+python manage.py test
+```
+
+What to capture for evidence
+- Copy a short snippet of the `python manage.py test` output showing tests passed, or attach a screenshot under `staticfiles/images` and reference it here (e.g. `staticfiles/images/tests_passed.png`).
+- For manual tests in the Manual Testing table below, capture screenshots and replace the `Pending` notes with `✅` and an evidence reference (file name or short output).
+
 ### 🧭 Manual Testing
 
 | Action | Expected Result | Outcome |
@@ -194,10 +213,10 @@ open database link in your email
 | Delete a comment | Asks for confirmation and deletes from database | ✅ |
 | Staff: Pending recipes | Shows draft recipes with Approve / Reject buttons | ✅ |
 | Staff: Approve recipe | Recipe published and removed from pending list | ✅ |
-| Staff: Reject recipe | Recipe removed from pending list (not public) | (record) |
-| Staff: Pending comments | Shows unapproved comments with Approve / Reject buttons | (record) |
-| Staff: Approve comment | Comment appears under the recipe | (record) |
-| Non-staff access to staff pages | Redirected or blocked (no access) | (record) |
+| Staff: Reject recipe | Recipe removed from pending list (not public) | Pending — evidence to be added |
+| Staff: Pending comments | Shows unapproved comments with Approve / Reject buttons | Pending — evidence to be added |
+| Staff: Approve comment | Comment appears under the recipe | Pending — evidence to be added |
+| Non-staff access to staff pages | Redirected or blocked (no access) | Pending — evidence to be added |
 
 ---
 
@@ -226,10 +245,13 @@ open database link in your email
 ![Recipe Detail Screenshot](staticfiles/images/Screenshot_Detail.png)  
 ![Admin Dashboard Screenshot](staticfiles/images/Screenshot_Admin.png)
 
-### Responsiveness 
+### Responsiveness Testing
 ![Desktop](staticfiles/images/Desktop_Screen.png)
 ![Tablet](staticfiles/images/Tablet_View.png)
 ![Mobile](staticfiles/images/Mobile_Screen.png)
+
+### Different Browser Testing
+
 
 ---
 
@@ -253,18 +275,19 @@ Summary of AI tools used:
 
 Key outcomes (mapped to LO8 assessment criteria):
 
-- **8.1 — AI-assisted code creation**: AI was used to help generate and refine code for several front-end and back-end improvements, including:
+- **1 — AI-assisted code creation**: AI was used to help generate and refine code for several front-end and back-end improvements, including:
 	- Adding Bootstrap-compatible widgets and classes to `recipes/forms.py` so forms render with consistent styling.
 	- Implementing staff approval views and templates (`recipes/views.py`, `recipes/urls.py`, `recipes/templates/recipes/pending_*.html`).
 	- Creating a small context processor (`recipes/context_processors.py`) to provide pending counts to templates.
 	These changes were reviewed and adjusted manually to ensure they fit the project's architecture and coding style.
 
-- **8.2 — AI-assisted debugging**: AI helped diagnose and fix a Django template error caused by attempting to pass keyword args into `label_tag` from templates (Django templates do not support that syntax). The solution was to render labels manually using `{{ form.field.id_for_label }}` and explicit `<label>` elements. The fix was validated by reloading the pages and confirming the error no longer occurred.
+- **2 — AI-assisted debugging**: AI helped diagnose and fix a Django template error caused by attempting to pass keyword args into `label_tag` from templates (Django templates do not support that syntax). The solution was to render labels manually using `{{ form.field.id_for_label }}` and explicit `<label>` elements. The fix was validated by reloading the pages and confirming the error no longer occurred.
 
 		Additional debugging example (rating submission):
 
 		- Problem found during early testing: it was possible to submit the rating form without selecting any stars. This caused a server-side crash (HTTP 500 Internal Server Error) when the missing value was treated as a numeric rating. The issue was reproduced by a tester and confirmed locally.
 		- AI-assisted fix: an AI-assisted suggestion implemented a small client-side guard that prevents submission when no star is selected and displays a modal prompting the user to choose a rating. This prevented the 500 error and improved UX.
+		- AI-assisted UI fix (duplicate modals): AI suggested showing the rating 'Thanks' modal *instead* of the generic flash modal when a rating is submitted, and to add a close (X) control to the rating modal for consistent behavior. This was implemented in `templates/base.html` to avoid overlapping modals and improve UX.
 		- Evidence and screenshots: to document the fix for resubmission, add two screenshots to `staticfiles/images`:
 			- `rating_before.png` — the HTTP 500 error screen (before the client-side guard).
 			- `rating_after.png` — the modal shown when attempting to submit without selecting a star (after the client-side guard).
@@ -274,12 +297,12 @@ Key outcomes (mapped to LO8 assessment criteria):
 
 			![Rating bug — after](staticfiles/images/rating_after.png)
 
-- **8.3 — AI-assisted performance & UX improvements**: AI suggested pragmatic UX improvements that were implemented, such as:
+- **3 — AI-assisted performance & UX improvements**: AI suggested pragmatic UX improvements that were implemented, such as:
 	- Adding Bootstrap layout and spacing to auth and form pages for consistent, mobile-friendly UX.
 	- Introducing admin-facing pending-count badges and a lightweight moderation interface to improve content moderation workflow (fewer backend-only admin steps).
 	These suggestions were implemented conservatively and manually verified in the browser.
 
-- **8.4 — AI-assisted test generation**: GitHub Copilot has been used to help draft unit test scaffolding and example test cases (for model helpers, view permissions, and form validation). Test code is being reviewed and adjusted to align with the project's logic; a focused test suite will be added to `recipes/tests.py` and documented in `TESTING.md` (see planned tasks).
+- **4 — AI-assisted test generation**: GitHub Copilot has been used to help draft unit test scaffolding and example test cases (for model helpers, view permissions, and form validation). Test code is being reviewed and adjusted to align with the project's logic; a focused test suite will be added to `recipes/tests.py` and the test report / instructions will be documented in this `README.md` (see Testing section above).
 
 How AI was used responsibly
 - All AI-generated code and suggestions were reviewed by the developer. Where generated code did not exactly match project conventions or requirements, it was edited and tested manually.
@@ -287,9 +310,7 @@ How AI was used responsibly
 
 Suggested evidence to include with resubmission
 - A short log of representative prompts and outputs (optional) — kept separate from source control if present.
-- A short test report showing passing unit tests once added (this will be included in `TESTING.md`).
-
-I can also proceed to add the unit tests that were drafted with Copilot and finalize the testing documentation.
+- A short test report showing passing unit tests once added (include the report or a snippet in this README under the Testing section).
 
 ## 🙌 13. Credits & Acknowledgements
 
