@@ -277,18 +277,25 @@ How these tests map to the assessment
 ![Admin Dashboard Screenshot](staticfiles/images/Screenshot_Admin.png)
 
 ### Responsiveness Testing
-1 Desktop
+- 1 Desktop
 ![Desktop](staticfiles/images/Desktop_Screen.png)
-2 Tablet
+
+- 2 Tablet
 ![Tablet](staticfiles/images/Tablet_View.png)
-3 Mobile
+
+- 3 Mobile
 ![Mobile](staticfiles/images/Mobile_Screen.png)
 
 ### Different Browser Testing
+1 Google Chrome
 ![Chrome](staticfiles/images/Chrome.jpg)
+2 Safari
 ![Safari](staticfiles/images/Safari.jpg)
+3 Microsoft Edge
 ![Microsoft Edge](staticfiles/images/Edge.jpg)
+4 Opera
 ![Opera](staticfiles/images/Opera.jpg)
+5 Firefox
 ![Firefox](staticfiles/images/Firefox.jpg)
 
 ---
