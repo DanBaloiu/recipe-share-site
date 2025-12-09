@@ -161,9 +161,14 @@ open database link in your email
 
 | Tool | Status | Screenshot |
 |------|---------|-------------|
-| **HTML (W3C Validator)** | ✅ Passed | ![HTML Validator](staticfiles/images/HTML_After_2.png) |
-| **CSS (W3C Validator)** | ✅ Passed | ![CSS Validator](staticfiles/images/CSS_Validation.png) |
-
+| **HTML (W3C Validator) - Homepage** | ✅ Passed | ![HTML Validator](staticfiles/images/HTML_Homepage_Validation.jpg) |
+| **HTML (W3C Validator) - Post** | ✅ Passed | ![HTML Validator](staticfiles/images/HTML_After_2.png) |
+| **HTML (W3C Validator) - Submit Post** | ✅ Passed | ![HTML Validator](staticfiles/images/HTML_Submit_Recipe_Validation.jpg) |
+| **HTML (W3C Validator) - Sign up** | ✅ Passed | ![HTML Validator](staticfiles/images/HTML_Signup_Validation.jpg) |
+| **CSS (W3C Validator) - Homepage** | ✅ Passed | ![CSS Validator](staticfiles/images/CSS_Validation.png) |
+| **CSS (W3C Validator) - Post** | ✅ Passed | ![CSS Validator](staticfiles/images/CSS_Post_Validation.jpg) |
+| **CSS (W3C Validator) - Submit Recipe** | ✅ Passed | ![CSS Validator](staticfiles/images/CSS_SubmitRecipe_Validation.jpg) |
+| **CSS (W3C Validator) - Sign Up** | ✅ Passed | ![CSS Validator](staticfiles/images/CSS_SignUp_Validation.jpg) |
 ---
 
 ### ⚡ Performance (Lighthouse)
@@ -183,40 +188,66 @@ open database link in your email
 
 ### ▶ Running tests locally
 
-Follow these steps to run the Django unit tests locally and capture evidence for submission. The project keeps all testing documentation inside this single `README.md` per project requirements.
+
+Test run (project `recipes` app)
+
+The following is an example run of the test suite for the `recipes` app (this project). It shows the test database creation, the discovered tests, and the final OK status indicating all tests passed.
 
 ```
-# create and activate a virtual environment (example for Windows Git Bash)
-python -m venv .venv
-source .venv/Scripts/activate
-pip install -r requirements.txt
-# run the test suite
-python manage.py test
+$ C:/Users/Dan/recipe-share-site/.venv/Scripts/python.exe manage.py test recipes
+Found 10 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+..........
+----------------------------------------------------------------------
+Ran 10 tests in 10.885s
+
+OK
+Destroying test database for alias 'default'...
 ```
 
-What to capture for evidence
-- Copy a short snippet of the `python manage.py test` output showing tests passed, or attach a screenshot under `staticfiles/images` and reference it here (e.g. `staticfiles/images/tests_passed.png`).
-- For manual tests in the Manual Testing table below, capture screenshots and replace the `Pending` notes with `✅` and an evidence reference (file name or short output).
+Which tests were added
+
+- `recipes/test_forms.py`
+	- `TestCommentForm.test_form_is_valid` — verifies `CommentForm` valid when `body` provided.
+	- `TestCommentForm.test_form_is_invalid_when_body_missing` — verifies `CommentForm` invalid when `body` is empty.
+	- `TestRecipeForm.*` — verifies `RecipeForm` validates required fields (title, description, ingredients, steps, and numeric fields `prep_minutes`, `cook_minutes`, `servings`).
+
+- `recipes/test_views.py`
+	- `TestRecipeViews.test_recipe_detail_get_contains_form_and_content` — recipe detail page loads and includes `comment_form` in context.
+	- `TestRecipeViews.test_comment_post_requires_login` — POSTing a comment when not authenticated redirects to login.
+	- `TestRecipeViews.test_comment_post_creates_unapproved_comment` — authenticated comment submissions create `Comment` with `approved=False`.
+	- `TestRecipeViews.test_rating_post_creates_rating` — authenticated rating POST creates a `Rating` record.
+	- `TestRecipeViews.test_invalid_empty_rating_does_not_create_and_no_500` — submitting an empty rating is handled gracefully and does not crash.
+	- `TestRecipeViews.test_pending_recipes_access_control` — `pending_recipes` is blocked for non-staff and accessible to staff users.
+
+How these tests map to the assessment
+
+- LO4.1: The tests exercise functionality and data management for comments, ratings and recipe forms, demonstrating automated checks for correctness and basic access control.
+- LO4.3: This README documents the tests, their purpose, and the exact test output shown above (single-source documentation as required).
+
+![Test run screenshot](staticfiles/images/Testing_1.jpg)
+*Figure: Project test run showing all `recipes` tests passing.*
 
 ### 🧭 Manual Testing
 
 | Action | Expected Result | Outcome |
 |--------|-----------------|----------|
-| Load homepage | Recipes displayed, responsive layout | ✅ |
-| Login Confirmation | Hello, Username displayed on the navbar | ✅ |
-| View recipe detail | Ingredients, steps, and comments visible | ✅ |
-| Post a comment | Comment appears under recipe and awaiting admin aproval | ✅ |
-| Rate recipe | Rating saved and average updates | ✅ |
-| Update rating | Updates the rating and shows confirmation | ✅ |
-| Log out | Redirects to homepage | ✅ |
-| Update a comment | Asks for confirmation and send to admin for validation | ✅ |
-| Delete a comment | Asks for confirmation and deletes from database | ✅ |
-| Staff: Pending recipes | Shows draft recipes with Approve / Reject buttons | ✅ |
+| Load homepage | Recipes displayed, responsive layout | ![Load homepage](staticfiles/images/Load_Homepage.jpg) |
+| Login Confirmation | Hello, Username displayed on the navbar | ![Login Confirmation](staticfiles/images/Loin_Confirmation.jpg) |
+| View recipe detail | Ingredients, steps, and comments visible | ![Login Confirmation](staticfiles/images/View_recipe_detail.jpg) |
+| Post a comment | Recive notification awaiting admin aproval | ![Post a comment](staticfiles/images/Comment_Notification.jpg) |
+| Rate recipe | Rating saved and average updates | ![Rate recipe](staticfiles/images/Submit_rating.jpg) |
+| Update rating | Updates the rating and shows confirmation | ![Update rating](staticfiles/images/Update_Rating.jpg) |
+| Log out | Logout user and redirects to homepage | ![Log out](staticfiles/images/Confirm_Logout.jpg) |
+| Update a comment | Asks for confirmation and send to admin for validation | ![Update a comment](staticfiles/images/Update_Comment.jpg) |
+| Delete a comment | Asks for confirmation and deletes from database | ![Delete a comment](staticfiles/images/Delete_Comment.jpg) |
+| Staff: Pending recipes | Shows draft recipes with Approve / Reject buttons | ![Staff: Pending recipes](staticfiles/images/Pending_Admin.jpg) |
 | Staff: Approve recipe | Recipe published and removed from pending list | ✅ |
-| Staff: Reject recipe | Recipe removed from pending list (not public) | Pending — evidence to be added |
-| Staff: Pending comments | Shows unapproved comments with Approve / Reject buttons | Pending — evidence to be added |
-| Staff: Approve comment | Comment appears under the recipe | Pending — evidence to be added |
-| Non-staff access to staff pages | Redirected or blocked (no access) | Pending — evidence to be added |
+| Staff: Reject recipe | Recipe removed from pending list (not public) | ✅ |
+| Staff: Pending comments | Shows unapproved comments with Approve / Reject buttons | ![Staff: Pending comments](staticfiles/images/Pending_Comments.jpg) |
+| Staff: Approve comment | Comment appears under the recipe | ✅ |
+| Non-staff access to staff pages | Redirected or blocked (no access) | ✅ |
 
 ---
 
@@ -246,12 +277,19 @@ What to capture for evidence
 ![Admin Dashboard Screenshot](staticfiles/images/Screenshot_Admin.png)
 
 ### Responsiveness Testing
+1 Desktop
 ![Desktop](staticfiles/images/Desktop_Screen.png)
+2 Tablet
 ![Tablet](staticfiles/images/Tablet_View.png)
+3 Mobile
 ![Mobile](staticfiles/images/Mobile_Screen.png)
 
 ### Different Browser Testing
-
+![Chrome](staticfiles/images/Chrome.jpg)
+![Safari](staticfiles/images/Safari.jpg)
+![Microsoft Edge](staticfiles/images/Edge.jpg)
+![Opera](staticfiles/images/Opera.jpg)
+![Firefox](staticfiles/images/Firefox.jpg)
 
 ---
 
@@ -293,9 +331,9 @@ Key outcomes (mapped to LO8 assessment criteria):
 			- `rating_after.png` — the modal shown when attempting to submit without selecting a star (after the client-side guard).
 			Insert them here once you have them:
 
-			![Rating bug — before](staticfiles/images/rating_before.png)
+			![Rating bug — before](staticfiles/images/Star_submit_error.jpg)
 
-			![Rating bug — after](staticfiles/images/rating_after.png)
+			![Rating bug — after](staticfiles/images/Star_submit_error_fixed.jpg)
 
 - **3 — AI-assisted performance & UX improvements**: AI suggested pragmatic UX improvements that were implemented, such as:
 	- Adding Bootstrap layout and spacing to auth and form pages for consistent, mobile-friendly UX.
@@ -308,9 +346,6 @@ How AI was used responsibly
 - All AI-generated code and suggestions were reviewed by the developer. Where generated code did not exactly match project conventions or requirements, it was edited and tested manually.
 - No sensitive information, credentials, or private prompts were stored in the repository. All environment-specific secrets remain in environment variables or `env.py` (not checked into source control).
 
-Suggested evidence to include with resubmission
-- A short log of representative prompts and outputs (optional) — kept separate from source control if present.
-- A short test report showing passing unit tests once added (include the report or a snippet in this README under the Testing section).
 
 ## 🙌 13. Credits & Acknowledgements
 
